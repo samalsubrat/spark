@@ -3,7 +3,6 @@ import { NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    // Simple test query
     const result = await sql`SELECT 1 as test_value, NOW() as current_time`
     
     return NextResponse.json({ 
