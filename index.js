@@ -12,6 +12,9 @@ app.get("/health", (req, res) => {
     res.json({message: "Health Check!"})
 })
 
+import authRoutes from "./routes/authRoutes.js";
+
+app.use("/api/v1/auth", authRoutes);
 
 const port = process.env.PORT || 8080;
 
