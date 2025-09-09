@@ -1,31 +1,21 @@
 {
-  "name": "sih-spark",
-  "version": "0.1.0",
-  "private": true,
+  "name": "spark",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "@neondatabase/serverless": "^1.0.1",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.542.0",
-    "multer": "^2.0.2",
-    "next": "15.5.2",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "tailwind-merge": "^3.3.1",
-    "zod": "^4.1.5"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samalsubrat/spark.git"
   },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.5.2",
-    "tailwindcss": "^4",
-    "tw-animate-css": "^1.3.8"
-  }
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/samalsubrat/spark/issues"
+  },
+  "homepage": "https://github.com/samalsubrat/spark#readme"
 }
