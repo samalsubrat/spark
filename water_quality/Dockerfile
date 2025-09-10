@@ -1,5 +1,5 @@
 # Base image
-FROM python:3.11-bookworm-slim
+FROM python:3.11-slim
 
 # Environment settings
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install system dependencies (needed for XGBoost, curl, etc.)
+# Install system dependencies (XGBoost needs libgomp1)
 RUN apt-get update && apt-get install -y --no-install-recommends \
       curl ca-certificates build-essential libgomp1 \
     && rm -rf /var/lib/apt/lists/*
