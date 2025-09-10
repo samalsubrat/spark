@@ -4,12 +4,7 @@ services:
     env: docker
     plan: free
     autoDeploy: true
-    dockerfilePath: water_quality/Dockerfile   # <-- Add this line
+    dockerfilePath: water_quality/Dockerfile
     envVars:
       - key: MODEL_PATH
-        value: water_quality/models/model.pkl  # <-- Update path if model is inside water_quality
-    # Optional: add a persistent disk if your model is large
-    # disks:
-    #   - name: model-disk
-    #     mountPath: /app/models
-    #     sizeGB: 1
+        value: water_quality/models/model.pkl
