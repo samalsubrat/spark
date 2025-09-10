@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: waterborne-risk-api
+    env: docker
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: MODEL_PATH
+        value: models/model.pkl
+    # Optional: add a persistent disk if your model is large
+    # disks:
+    #   - name: model-disk
+    #     mountPath: /app/models
+    #     sizeGB: 1
