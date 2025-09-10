@@ -10,10 +10,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       curl ca-certificates libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# Copy only requirements first to leverage Docker cache
+COPY requirements.txt .
 
-COPY . /app
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy rest of the app
+COPY . .
 
 EXPOSE 8000
 
