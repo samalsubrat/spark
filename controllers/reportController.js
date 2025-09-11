@@ -14,12 +14,10 @@ const createReport = async (req, res) => {
       comment,
     } = req.body;
     if (!name || !location || !date || !mapArea || !leaderId || !photoUrl) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "name, location, date, mapArea, leaderId, photoUrl are required",
-        });
+      return res.status(400).json({
+        message:
+          "name, location, date, mapArea, leaderId, photoUrl are required",
+      });
     }
 
     const leader = await prisma.user.findUnique({ where: { id: leaderId } });
@@ -111,19 +109,40 @@ const updateReport = async (req, res) => {
       where: { id },
       data: updates,
     });
-    return res
-      .status(200)
-      .json({
-        report: {
-          id: updated.id,
-          status: updated.status,
-          progress: updated.progress,
-        },
-      });
+    return res.status(200).json({
+      report: {
+        id: updated.id,
+        status: updated.status,
+        progress: updated.progress,
+      },
+    });
   } catch (error) {
     console.error("updateReport error", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-export { createReport, listLeaderReports, updateReport };
+const deleteReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const report = await prisma.report.findUnique({ where: { id } });
+    if (!report) return res.status(404).json({ message: "report not found" });
+    // leader owner or admin can delete
+    if (
+      !req.user ||
+      !(
+        req.user.role === "admin" ||
+        (req.user.role === "leader" && req.user.id === report.leaderId)
+      )
+    ) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+    await prisma.report.delete({ where: { id } });
+    return res.status(200).json({ deleted: true });
+  } catch (error) {
+    console.error("deleteReport error", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export { createReport, listLeaderReports, updateReport, deleteReport };

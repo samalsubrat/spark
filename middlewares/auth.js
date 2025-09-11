@@ -8,7 +8,9 @@ const isLoggedIn = async (req, res, next) => {
     if (!token) return res.status(401).json({ message: "missing token" });
 
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+    });
     if (!user) return res.status(401).json({ message: "invalid token" });
 
     req.user = { id: user.id, email: user.email, role: user.role };
@@ -20,10 +22,9 @@ const isLoggedIn = async (req, res, next) => {
 
 const requireRole = (role) => (req, res, next) => {
   if (!req.user) return res.status(401).json({ message: "unauthorized" });
-  if (req.user.role !== role) return res.status(403).json({ message: "forbidden" });
+  if (req.user.role !== role)
+    return res.status(403).json({ message: "forbidden" });
   next();
 };
 
 export { isLoggedIn, requireRole };
-
-

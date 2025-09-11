@@ -50,4 +50,72 @@ const listHotspots = async (_req, res) => {
   }
 };
 
-export { createHotspot, listHotspots };
+const getHotspotById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const hs = await prisma.hotspot.findUnique({ where: { id } });
+    if (!hs) return res.status(404).json({ message: "hotspot not found" });
+    return res.status(200).json({ hotspot: hs });
+  } catch (error) {
+    console.error("getHotspotById error", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const updateHotspot = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const hs = await prisma.hotspot.findUnique({ where: { id } });
+    if (!hs) return res.status(404).json({ message: "hotspot not found" });
+    if (
+      !(
+        req.user.role === "admin" ||
+        (req.user.role === "leader" && req.user.id === hs.createdById)
+      )
+    ) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+    const { name, description, location, latitude, longitude } = req.body;
+    const data = {};
+    if (name) data.name = name;
+    if (typeof description !== "undefined")
+      data.description = description || null;
+    if (location) data.location = location;
+    if (typeof latitude === "number") data.latitude = latitude;
+    if (typeof longitude === "number") data.longitude = longitude;
+    const updated = await prisma.hotspot.update({ where: { id }, data });
+    return res.status(200).json({ hotspot: { id: updated.id } });
+  } catch (error) {
+    console.error("updateHotspot error", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const deleteHotspot = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const hs = await prisma.hotspot.findUnique({ where: { id } });
+    if (!hs) return res.status(404).json({ message: "hotspot not found" });
+    if (
+      !(
+        req.user.role === "admin" ||
+        (req.user.role === "leader" && req.user.id === hs.createdById)
+      )
+    ) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+    await prisma.hotspot.delete({ where: { id } });
+    return res.status(200).json({ deleted: true });
+  } catch (error) {
+    console.error("deleteHotspot error", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export {
+  createHotspot,
+  listHotspots,
+  getHotspotById,
+  updateHotspot,
+  deleteHotspot,
+};

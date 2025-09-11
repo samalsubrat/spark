@@ -9,8 +9,8 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/health", (req, res) => {
-    res.json({message: "Health Check!"})
-})
+  res.json({ message: "Health Check!" });
+});
 
 import authRoutes from "./routes/authRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
@@ -19,6 +19,7 @@ import hotspotRoutes from "./routes/hotspotRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import gamifiedRoutes from "./routes/gamifiedRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/reports", reportRoutes);
@@ -27,9 +28,10 @@ app.use("/api/v1/hotspots", hotspotRoutes);
 app.use("/api/v1/chat", chatRoutes);
 app.use("/api/v1/gamified", gamifiedRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/profile", profileRoutes);
 
 const port = process.env.PORT || 8080;
 
 app.listen(port, () => {
-    console.log(`App is running at http://localhost:${port}/`)
-})
+  console.log(`App is running at http://localhost:${port}/`);
+});
