@@ -8,7 +8,15 @@ import os
 model_path = os.path.join(os.path.dirname(__file__), "..", "models", "model.pkl")
 model = joblib.load(model_path)
 
-app = FastAPI(title="Waterborne Disease Predictor")
+app = FastAPI(title="Waterborne Disease Predictor", description="ML API for predicting waterborne diseases based on symptoms", version="1.0.0")
+
+@app.get("/")
+def read_root():
+    return {"message": "Waterborne Disease Predictor API", "status": "running", "docs": "/docs"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
 
 # Define input data model
 class PatientSymptoms(BaseModel):
