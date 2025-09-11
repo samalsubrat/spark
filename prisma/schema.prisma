@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -15,17 +14,136 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(uuid())
-  email       String       @unique
-  password    String
-  role        Role
-  createdAt   String
+  id            String        @id @default(uuid())
+  name          String?
+  email         String        @unique
+  password      String
+  role          Role          @default(public)
+  createdAt     DateTime      @default(now())
+  leaderReports Report[]
+  waterTests    WaterTest[]
+  hotspots      Hotspot[]
+  leaderAlerts  LeaderAlert[]
+  Playbook      Playbook[]
+  Story         Story[]
+  Testimonial   Testimonial[]
 }
 
 enum Role {
   public
   asha
-  leaders
+  leader
   admin
 }
 
+model Report {
+  id        String       @id @default(uuid())
+  name      String
+  location  String
+  latitude  Float?
+  longitude Float?
+  date      DateTime
+  mapArea   Json
+  photoUrl  String
+  comment   String?
+  leaderId  String
+  leader    User         @relation(fields: [leaderId], references: [id])
+  status    ReportStatus @default(awaiting)
+  progress  Int          @default(0)
+  createdAt DateTime     @default(now())
+}
+
+enum ReportStatus {
+  awaiting
+  in_progress
+  resolved
+}
+
+model WaterTest {
+  id            String        @id @default(uuid())
+  waterbodyName String
+  waterbodyId   String?
+  dateTime      DateTime
+  location      String
+  latitude      Float?
+  longitude     Float?
+  photoUrl      String
+  notes         String
+  quality       WaterQuality
+  ashaId        String
+  asha          User          @relation(fields: [ashaId], references: [id])
+  createdAt     DateTime      @default(now())
+  leaderAlerts  LeaderAlert[]
+  globalAlerts  GlobalAlert[]
+}
+
+enum WaterQuality {
+  good
+  medium
+  high
+  disease
+}
+
+model LeaderAlert {
+  id          String    @id @default(uuid())
+  leaderId    String
+  leader      User      @relation(fields: [leaderId], references: [id])
+  message     String
+  waterTestId String
+  waterTest   WaterTest @relation(fields: [waterTestId], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model GlobalAlert {
+  id          String    @id @default(uuid())
+  message     String
+  waterTestId String
+  waterTest   WaterTest @relation(fields: [waterTestId], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Hotspot {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  location    String
+  latitude    Float?
+  longitude   Float?
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+enum ContentSource {
+  local
+  llm
+}
+
+model Playbook {
+  id          String        @id @default(uuid())
+  title       String
+  content     String
+  source      ContentSource @default(local)
+  createdById String?
+  createdBy   User?         @relation(fields: [createdById], references: [id])
+  createdAt   DateTime      @default(now())
+}
+
+model Story {
+  id          String        @id @default(uuid())
+  title       String
+  content     String
+  source      ContentSource @default(local)
+  createdById String?
+  createdBy   User?         @relation(fields: [createdById], references: [id])
+  createdAt   DateTime      @default(now())
+}
+
+model Testimonial {
+  id         String   @id @default(uuid())
+  content    String
+  authorName String?
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+}
