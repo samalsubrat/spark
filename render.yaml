@@ -4,7 +4,7 @@ services:
     env: docker
     plan: free
     autoDeploy: true
-    dockerfilePath: water_quality/Dockerfile
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: MODEL_PATH
         value: water_quality/models/model.pkl

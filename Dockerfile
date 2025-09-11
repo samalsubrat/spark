@@ -23,4 +23,4 @@ EXPOSE 8000
 RUN useradd -m appuser
 USER appuser
 
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "src.app.main:app", "-b", "0.0.0.0:8000", "--workers", "2"]
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "water_quality.src.app.main:app", "-b", "0.0.0.0:8000", "--workers", "2"]

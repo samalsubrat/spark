@@ -86,7 +86,7 @@ def main(args):
     # Evaluate
     preds = pipeline.predict(X_test)
     acc = accuracy_score(y_test, preds)
-    print(f"✅ Accuracy: {acc:.4f}")
+    print(f"Accuracy: {acc:.4f}")
     print("Classification Report:\n", classification_report(y_test, preds))
 
     # Persist the single pipeline (contains both scaler and model)
