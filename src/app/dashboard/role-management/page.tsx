@@ -1,12 +1,25 @@
 "use client"
 
 import React from "react"
-import { UsersTable } from "@/components/users-table"
+import { UsersTable } from "@/components/admin-users-table"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function RoleManagementPage() {
-  // In a real app, you would get this from authentication context
-  const currentUserRole = "Admin" // or "Local Leader", etc.
-  const currentUserRegion = "Central District"
+  const { user } = useAuth()
+
+  // Only admin users should access this page
+  if (!user || user.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600">
+            You need admin privileges to access role management.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -16,11 +29,13 @@ export default function RoleManagementPage() {
           <p className="text-gray-600">
             Manage user roles, permissions, and access control across the system
           </p>
+          <div className="mt-2 text-sm text-blue-600">
+            Logged in as: <span className="font-medium">{user.email}</span> ({user.role})
+          </div>
         </div>
 
         <UsersTable 
-          currentUserRole={currentUserRole}
-          currentUserRegion={currentUserRegion}
+          currentUser={user}
         />
       </div>
     </div>

@@ -62,7 +62,10 @@ export class ReportsService {
 
   private static getAuthHeaders(): Record<string, string> {
     const token = this.getToken()
-    console.log('Auth token:', token ? `${token.substring(0, 10)}...` : 'No token')
+    console.log('Making API request with token:', token ? 'Token present' : 'No token found')
+    if (token) {
+      console.log('Authorization header:', `Bearer ${token.substring(0, 20)}...`)
+    }
     return {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` })
@@ -99,13 +102,20 @@ export class ReportsService {
 
     if (!response.ok) {
       let errorMessage = 'Failed to fetch reports'
-      try {
-        const error = await response.json()
-        errorMessage = error.message || errorMessage
-      } catch {
-        // If response is not JSON, use status text
-        errorMessage = response.statusText || errorMessage
+      
+      if (response.status === 401) {
+        errorMessage = 'Authentication required - please sign in'
+      } else if (response.status === 403) {
+        errorMessage = 'Access forbidden - insufficient permissions'
+      } else {
+        try {
+          const error = await response.json()
+          errorMessage = error.message || errorMessage
+        } catch {
+          errorMessage = `${response.status} ${response.statusText}` || errorMessage
+        }
       }
+      
       throw new Error(errorMessage)
     }
 
