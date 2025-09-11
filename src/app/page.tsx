@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Droplets, Shield, BarChart3, Users, Globe, Phone } from "lucide-react"
+import { Droplets, Shield, BarChart3, Users, Globe, Phone, GraduationCap, Newspaper } from "lucide-react"
 
 export default function Home() {
   return (
@@ -17,6 +17,12 @@ export default function Home() {
               <h1 className="text-xl font-bold text-gray-900">SPARK</h1>
             </div>
             <div className="flex items-center gap-4">
+              <Link href="/education">
+                <Button variant="ghost">Education</Button>
+              </Link>
+              <Link href="/news">
+                <Button variant="ghost">News</Button>
+              </Link>
               <Link href="/sign-in">
                 <Button variant="ghost">Sign In</Button>
               </Link>
@@ -160,6 +166,54 @@ export default function Home() {
                   <li>• Automated data entry</li>
                   <li>• Quality validation</li>
                 </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Newspaper className="h-6 w-6 text-indigo-600 mr-3" />
+                  Health News & Updates
+                </CardTitle>
+                <CardDescription>
+                  Stay informed with latest health news and community updates
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-sm text-gray-600 space-y-2">
+                  <li>• Breaking health alerts</li>
+                  <li>• Community success stories</li>
+                  <li>• Research updates</li>
+                </ul>
+                <Link href="/news" className="block mt-4">
+                  <Button variant="outline" size="sm" className="w-full">
+                    Read Latest News
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <GraduationCap className="h-6 w-6 text-indigo-600 mr-3" />
+                  Education Hub
+                </CardTitle>
+                <CardDescription>
+                  Learn about water quality through interactive content
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-sm text-gray-600 space-y-2">
+                  <li>• Educational playbooks</li>
+                  <li>• Inspiring stories</li>
+                  <li>• Community testimonials</li>
+                </ul>
+                <Link href="/education" className="block mt-4">
+                  <Button variant="outline" size="sm" className="w-full">
+                    Explore Learning
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
