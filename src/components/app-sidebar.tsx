@@ -12,8 +12,21 @@ import {
   MapPin,
   User,
   Zap,
-  TestTubeDiagonal ,
+  TestTubeDiagonal,
+  Users,
+  LogOut,
+  Settings,
+  ChevronUp,
 } from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 import {
   Sidebar,
@@ -37,12 +50,14 @@ const navigationItems = [
   { name: "Waterbody Tests", href: "/dashboard/water-tests", icon: Droplets },
   { name: "Predictions", href: "/dashboard/predictions", icon: TrendingUp },
   { name: "Disease Predictor", href: "/dashboard/waterpredict", icon: TestTubeDiagonal },
+  { name: "Role Management", href: "/dashboard/role-management", icon: Users },
   { name: "Alerts", href: "/dashboard/alerts", icon: AlertTriangle },
   { name: "Hotspots", href: "/dashboard/hotspots", icon: MapPin },
 ]
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { user, logout } = useAuth()
 
   return (
     <Sidebar
@@ -89,17 +104,49 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-gray-200 p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === "/dashboard/account"}
-              tooltip="Account Settings"
-              className="transition-all duration-200 hover:bg-blue-50 data-[active=true]:bg-blue-100 data-[active=true]:text-blue-700"
-            >
-              <Link href="/dashboard/account">
-                <User className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                <span className="transition-opacity duration-200">Account Settings</span>
-              </Link>
-            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton className="w-full justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                      <User className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div className="flex flex-col items-start text-left group-data-[collapsible=icon]:hidden">
+                      <span className="text-sm font-medium truncate max-w-[120px]">
+                        {user?.name || user?.email?.split('@')[0] || 'User'}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {user?.role || 'Guest'}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronUp className="h-4 w-4 group-data-[collapsible=icon]:hidden" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{user?.name || 'User'}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/account" className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Account Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={logout}
+                  className="flex items-center gap-2 text-red-600 focus:text-red-600"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
