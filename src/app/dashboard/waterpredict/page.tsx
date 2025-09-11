@@ -266,7 +266,7 @@ export default function WaterPredictPage() {
               </div>
               <div className="flex items-start gap-2">
                 <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium mt-0.5">2</div>
-                <p>Click "Predict Disease" to get AI analysis</p>
+                <p>Click `&quot;`Predict Disease`&quot;` to get AI analysis</p>
               </div>
               <div className="flex items-start gap-2">
                 <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium mt-0.5">3</div>
