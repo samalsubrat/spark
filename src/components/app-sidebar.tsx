@@ -12,6 +12,7 @@ import {
   MapPin,
   User,
   Zap,
+  TestTubeDiagonal ,
 } from "lucide-react"
 
 import {
@@ -35,6 +36,7 @@ const navigationItems = [
   { name: "Medical Tests", href: "/dashboard/medical-tests", icon: TestTube },
   { name: "Waterbody Tests", href: "/dashboard/water-tests", icon: Droplets },
   { name: "Predictions", href: "/dashboard/predictions", icon: TrendingUp },
+  { name: "Disease Predictor", href: "/dashboard/waterpredict", icon: TestTubeDiagonal },
   { name: "Alerts", href: "/dashboard/alerts", icon: AlertTriangle },
   { name: "Hotspots", href: "/dashboard/hotspots", icon: MapPin },
 ]
