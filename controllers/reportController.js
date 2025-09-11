@@ -2,9 +2,24 @@ import prisma from "../lib/db.js";
 
 const createReport = async (req, res) => {
   try {
-    const { name, location, latitude, longitude, date, mapArea, leaderId, photoUrl, comment } = req.body;
+    const {
+      name,
+      location,
+      latitude,
+      longitude,
+      date,
+      mapArea,
+      leaderId,
+      photoUrl,
+      comment,
+    } = req.body;
     if (!name || !location || !date || !mapArea || !leaderId || !photoUrl) {
-      return res.status(400).json({ message: "name, location, date, mapArea, leaderId, photoUrl are required" });
+      return res
+        .status(400)
+        .json({
+          message:
+            "name, location, date, mapArea, leaderId, photoUrl are required",
+        });
     }
 
     const leader = await prisma.user.findUnique({ where: { id: leaderId } });
@@ -26,7 +41,7 @@ const createReport = async (req, res) => {
       },
     });
 
-    // SMS notification to the local leader about this report should be sent here (to be implemented by another dev).
+    // SMS notification to the local leader about this report should be sent here (to be implemented).
 
     return res.status(201).json({ report });
   } catch (error) {
@@ -44,7 +59,15 @@ const listLeaderReports = async (req, res) => {
     const reports = await prisma.report.findMany({
       where: { leaderId: req.user.id },
       orderBy: { createdAt: "desc" },
-      select: { id: true, name: true, location: true, date: true, photoUrl: true, comment: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        location: true,
+        date: true,
+        photoUrl: true,
+        comment: true,
+        createdAt: true,
+      },
     });
 
     return res.status(200).json({ reports });
@@ -65,7 +88,8 @@ const updateReport = async (req, res) => {
 
     const report = await prisma.report.findUnique({ where: { id } });
     if (!report) return res.status(404).json({ message: "report not found" });
-    if (report.leaderId !== req.user.id) return res.status(403).json({ message: "forbidden" });
+    if (report.leaderId !== req.user.id)
+      return res.status(403).json({ message: "forbidden" });
 
     const updates = {};
     if (status) {
@@ -83,8 +107,19 @@ const updateReport = async (req, res) => {
       updates.progress = Math.round(p);
     }
 
-    const updated = await prisma.report.update({ where: { id }, data: updates });
-    return res.status(200).json({ report: { id: updated.id, status: updated.status, progress: updated.progress } });
+    const updated = await prisma.report.update({
+      where: { id },
+      data: updates,
+    });
+    return res
+      .status(200)
+      .json({
+        report: {
+          id: updated.id,
+          status: updated.status,
+          progress: updated.progress,
+        },
+      });
   } catch (error) {
     console.error("updateReport error", error);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -92,5 +127,3 @@ const updateReport = async (req, res) => {
 };
 
 export { createReport, listLeaderReports, updateReport };
-
-

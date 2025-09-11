@@ -7,7 +7,9 @@ const createHotspot = async (req, res) => {
     }
     const { name, description, location, latitude, longitude } = req.body;
     if (!name || !location) {
-      return res.status(400).json({ message: "name and location are required" });
+      return res
+        .status(400)
+        .json({ message: "name and location are required" });
     }
     const lat = typeof latitude === "number" ? latitude : undefined;
     const lng = typeof longitude === "number" ? longitude : undefined;
@@ -32,7 +34,14 @@ const listHotspots = async (_req, res) => {
   try {
     const hotspots = await prisma.hotspot.findMany({
       orderBy: { createdAt: "desc" },
-      select: { id: true, name: true, description: true, location: true, latitude: true, longitude: true },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        location: true,
+        latitude: true,
+        longitude: true,
+      },
     });
     return res.status(200).json({ hotspots });
   } catch (error) {
@@ -42,5 +51,3 @@ const listHotspots = async (_req, res) => {
 };
 
 export { createHotspot, listHotspots };
-
-
