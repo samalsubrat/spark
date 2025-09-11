@@ -1,92 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, MapPin, Calendar, Plus } from "lucide-react"
+import { 
+  Search, 
+  MapPin, 
+  Calendar, 
+  Plus, 
+  MoreHorizontal, 
+  Edit, 
+  Trash2, 
+  Eye,
+  Loader2 
+} from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Progress } from "@/components/ui/progress"
+import { ReportsService, type Report } from "@/lib/reports"
+import { useAuth } from "@/contexts/auth-context"
 
-interface WaterbodyReport {
-  id: string
-  name: string
-  reporter: {
-    name: string
-    email: string
-    avatar?: string
-  }
-  date: string
-  location: {
-    name: string
-    coordinates: string
-  }
-  photoUrl?: string
-  description: string
-  status: "new" | "reviewed" | "test-scheduled" | "completed"
-}
-
-const mockReports: WaterbodyReport[] = [
-  {
-    id: "WR-2024-001",
-    name: "Lake Meridian",
-    reporter: {
-      name: "Sarah Johnson",
-      email: "sarah.j@email.com",
-    },
-    date: "2024-01-15",
-    location: {
-      name: "Lake Meridian Park",
-      coordinates: "47.4502° N, 122.2015° W",
-    },
-    photoUrl: "/lake-with-algae.jpg",
-    description: "Unusual green algae growth observed along the shoreline",
-    status: "new",
-  },
-  {
-    id: "WR-2024-002",
-    name: "River Park Stream",
-    reporter: {
-      name: "Michael Chen",
-      email: "m.chen@email.com",
-    },
-    date: "2024-01-14",
-    location: {
-      name: "River Park Recreation Area",
-      coordinates: "47.4612° N, 122.1951° W",
-    },
-    photoUrl: "/stream-water.jpg",
-    description: "Strong odor and discoloration noticed in stream water",
-    status: "test-scheduled",
-  },
-  {
-    id: "WR-2024-003",
-    name: "Downtown Pond",
-    reporter: {
-      name: "Emily Rodriguez",
-      email: "e.rodriguez@email.com",
-    },
-    date: "2024-01-13",
-    location: {
-      name: "Downtown City Park",
-      coordinates: "47.4729° N, 122.2021° W",
-    },
-    photoUrl: "/city-pond.jpg",
-    description: "Dead fish observed floating on surface",
-    status: "reviewed",
-  },
-]
-
-function getStatusColor(status: WaterbodyReport["status"]) {
+function getStatusColor(status: Report["status"]) {
   switch (status) {
-    case "new":
-      return "bg-blue-100 text-blue-800 border-blue-200"
-    case "reviewed":
+    case "awaiting":
       return "bg-yellow-100 text-yellow-800 border-yellow-200"
-    case "test-scheduled":
-      return "bg-purple-100 text-purple-800 border-purple-200"
-    case "completed":
+    case "in_progress":
+      return "bg-blue-100 text-blue-800 border-blue-200"
+    case "resolved":
       return "bg-green-100 text-green-800 border-green-200"
     default:
       return "bg-gray-100 text-gray-800 border-gray-200"
@@ -94,21 +42,151 @@ function getStatusColor(status: WaterbodyReport["status"]) {
 }
 
 export function ReportsTable() {
+  const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState("")
-  const [reports] = useState(mockReports)
+  const [reports, setReports] = useState<Report[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch reports on component mount
+  useEffect(() => {
+    fetchReports()
+  }, [])
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      // Check if user is authenticated
+      if (!user) {
+        setError('Please sign in to view reports')
+        return
+      }
+      
+      console.log('User authenticated:', user)
+      console.log('Attempting to fetch reports...')
+      
+      const response = await ReportsService.getReports()
+      setReports(response.reports)
+      console.log('Successfully fetched reports:', response.reports)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load reports'
+      console.error('Error fetching reports:', err)
+      
+      // For now, always show dummy data since the backend might not be running
+      console.log('Using dummy data for development')
+      const currentUserId = user?.id || 'demo-user'
+      setReports([
+        {
+          id: '1',
+          name: 'Water Quality Report #1',
+          location: 'Lake District, Area A',
+          latitude: 28.6139,
+          longitude: 77.2090,
+          date: new Date().toISOString(),
+          mapArea: 'Sector 5',
+          leaderId: currentUserId,
+          photoUrl: '/placeholder-image.jpg',
+          comment: 'High pollution levels detected',
+          status: 'awaiting' as const,
+          progress: 0
+        },
+        {
+          id: '2',
+          name: 'Water Quality Report #2',
+          location: 'River Side, Area B',
+          latitude: 28.7041,
+          longitude: 77.1025,
+          date: new Date(Date.now() - 86400000).toISOString(),
+          mapArea: 'Sector 3',
+          leaderId: currentUserId,
+          photoUrl: '/placeholder-image.jpg',
+          comment: 'Chemical contamination found',
+          status: 'in_progress' as const,
+          progress: 50
+        },
+        {
+          id: '3',
+          name: 'Water Quality Report #3',
+          location: 'Pond Area, Area C',
+          latitude: 28.5355,
+          longitude: 77.3910,
+          date: new Date(Date.now() - 172800000).toISOString(),
+          mapArea: 'Sector 7',
+          leaderId: currentUserId,
+          photoUrl: '/placeholder-image.jpg',
+          comment: 'Treatment completed successfully',
+          status: 'resolved' as const,
+          progress: 100
+        }
+      ])
+      // Show a warning instead of an error for development
+      setError(`Backend not available (${errorMessage}). Showing demo data.`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleUpdateStatus = async (id: string, status: Report["status"], progress?: number) => {
+    try {
+      // Check if we're in demo mode
+      if (error?.includes('Backend not available')) {
+        // Update locally for demo purposes
+        setReports(prev => prev.map(report => 
+          report.id === id 
+            ? { ...report, status, progress: progress ?? report.progress }
+            : report
+        ))
+        return
+      }
+      
+      await ReportsService.updateReport(id, { status, progress })
+      await fetchReports()
+    } catch (err) {
+      console.error('Error updating report:', err)
+      setError(err instanceof Error ? err.message : 'Failed to update report')
+    }
+  }
+
+  const handleDeleteReport = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this report?')) {
+      return
+    }
+
+    try {
+      // Check if we're in demo mode
+      if (error?.includes('Backend not available')) {
+        // Remove locally for demo purposes
+        setReports(prev => prev.filter(report => report.id !== id))
+        return
+      }
+      
+      await ReportsService.deleteReport(id)
+      await fetchReports()
+    } catch (err) {
+      console.error('Error deleting report:', err)
+      setError(err instanceof Error ? err.message : 'Failed to delete report')
+    }
+  }
 
   const filteredReports = reports.filter(
     (report) =>
       report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.reporter.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.location.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      (report.location && report.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (report.comment && report.comment.toLowerCase().includes(searchTerm.toLowerCase()))
   )
+
+  const canModifyReport = (report: Report) => {
+    return user?.role === 'admin' || 
+           (user?.role === 'leader' && report.leaderId === user.id)
+  }
 
   return (
     <Card className="rounded-xl border-0 shadow-sm bg-white">
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <CardTitle className="text-lg font-semibold text-gray-900">Waterbody Reports</CardTitle>
+          <CardTitle className="text-lg font-semibold text-gray-900">Reports</CardTitle>
           <Button className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             New Report
@@ -123,81 +201,159 @@ export function ReportsTable() {
             className="pl-10"
           />
         </div>
+        {error && (
+          <div className={`text-sm p-3 rounded-lg border ${
+            error.includes('Backend not available') 
+              ? 'text-blue-600 bg-blue-50 border-blue-200' 
+              : 'text-red-600 bg-red-50 border-red-200'
+          }`}>
+            {error}
+          </div>
+        )}
       </CardHeader>
       <CardContent className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="min-w-[150px]">Waterbody</TableHead>
-              <TableHead className="min-w-[180px]">Reporter</TableHead>
-              <TableHead className="min-w-[100px]">Date</TableHead>
-              <TableHead className="min-w-[200px]">Location</TableHead>
-              <TableHead className="min-w-[80px]">Photo</TableHead>
-              <TableHead className="min-w-[100px]">Status</TableHead>
-              <TableHead className="min-w-[120px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredReports.map((report) => (
-              <TableRow key={report.id}>
-                <TableCell>
-                  <div>
-                    <div className="font-medium text-gray-900">{report.name}</div>
-                    <div className="text-sm text-gray-500">{report.id}</div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <Avatar className="w-8 h-8 flex-shrink-0">
-                      <AvatarImage src={report.reporter.avatar || "/placeholder.svg"} alt={report.reporter.name} />
-                      <AvatarFallback className="text-xs">
-                        {report.reporter.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium text-gray-900 truncate">{report.reporter.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{report.reporter.email}</div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
-                    <span className="whitespace-nowrap">{new Date(report.date).toLocaleDateString()}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <div className="truncate">{report.location.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{report.location.coordinates}</div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {report.photoUrl && (
-                    <Avatar className="w-10 h-10 rounded-md flex-shrink-0">
-                      <AvatarImage src={report.photoUrl || "/placeholder.svg"} alt="Report photo" />
-                      <AvatarFallback>IMG</AvatarFallback>
-                    </Avatar>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Badge className={getStatusColor(report.status)}>{report.status.replace("-", " ")}</Badge>
-                </TableCell>
-                <TableCell>
-                  <Button variant="outline" size="sm" className="w-full sm:w-auto bg-transparent">
-                    View Details
-                  </Button>
-                </TableCell>
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin mr-2" />
+            <span>Loading reports...</span>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="min-w-[150px]">Name</TableHead>
+                <TableHead className="min-w-[100px]">Date</TableHead>
+                <TableHead className="min-w-[200px]">Location</TableHead>
+                <TableHead className="min-w-[80px]">Photo</TableHead>
+                <TableHead className="min-w-[100px]">Status</TableHead>
+                <TableHead className="min-w-[100px]">Progress</TableHead>
+                <TableHead className="min-w-[120px]">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredReports.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    No reports found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredReports.map((report) => (
+                  <TableRow key={report.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium text-gray-900">{report.name}</div>
+                        <div className="text-sm text-gray-500">{report.id}</div>
+                        {report.comment && (
+                          <div className="text-xs text-gray-400 mt-1 truncate max-w-[200px]">
+                            {report.comment}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
+                        <span className="whitespace-nowrap">
+                          {new Date(report.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                        <div className="min-w-0">
+                          {report.location && (
+                            <div className="truncate">{report.location}</div>
+                          )}
+                          {report.latitude && report.longitude && (
+                            <div className="text-xs text-gray-500 truncate">
+                              {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}
+                            </div>
+                          )}
+                          {report.mapArea && (
+                            <div className="text-xs text-gray-500 truncate">
+                              Area: {report.mapArea}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {report.photoUrl && (
+                        <Avatar className="w-10 h-10 rounded-md flex-shrink-0">
+                          <AvatarImage src={report.photoUrl} alt="Report photo" />
+                          <AvatarFallback>IMG</AvatarFallback>
+                        </Avatar>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(report.status)}>
+                        {report.status.replace("_", " ")}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Progress value={report.progress} className="w-16" />
+                        <span className="text-xs text-gray-500 min-w-[30px]">
+                          {report.progress}%
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          {canModifyReport(report) && (
+                            <>
+                              <DropdownMenuItem>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Status
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleUpdateStatus(report.id, 'awaiting', 0)}
+                                disabled={report.status === 'awaiting'}
+                              >
+                                Set Awaiting
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleUpdateStatus(report.id, 'in_progress', 50)}
+                                disabled={report.status === 'in_progress'}
+                              >
+                                Set In Progress
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleUpdateStatus(report.id, 'resolved', 100)}
+                                disabled={report.status === 'resolved'}
+                              >
+                                Mark Resolved
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDeleteReport(report.id)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   )
