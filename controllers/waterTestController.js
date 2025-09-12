@@ -14,6 +14,7 @@ const createWaterTest = async (req, res) => {
       notes,
       quality,
     } = req.body;
+
     if (
       !waterbodyName ||
       !dateTime ||
@@ -28,13 +29,13 @@ const createWaterTest = async (req, res) => {
       });
     }
 
-    // Allow ASHA or ADMIN to create
-    if (!["asha", "admin"].includes(req.user.role)) {
+    // Allow ASHA, LEADER or ADMIN to create
+    if (!["asha", "admin", "leader"].includes(req.user.role)) {
       return res.status(403).json({ message: "forbidden" });
     }
 
     const normalizedQuality = String(quality).toLowerCase();
-    if (!["good", "medium", "high", "disease"].includes(normalizedQuality)) {
+    if (!["good", "medium", "high"].includes(normalizedQuality)) {
       return res.status(400).json({ message: "invalid quality" });
     }
 
@@ -52,6 +53,7 @@ const createWaterTest = async (req, res) => {
         ashaId: req.user.id,
       },
     });
+
     const formattedDate = new Date(dateTime).toLocaleString("en-IN", {
       weekday: "short", // Thu
       day: "2-digit", // 11
@@ -63,16 +65,18 @@ const createWaterTest = async (req, res) => {
       timeZone: "Asia/Kolkata", // Indian time zone
     });
 
+    // ================= ALERT HANDLING =================
     if (normalizedQuality === "medium") {
       const leaders = await prisma.user.findMany({
         where: { role: "leader" },
         select: { id: true, number: true },
       });
+
       if (leaders.length > 0) {
         await prisma.leaderAlert.createMany({
           data: leaders.map((l) => ({
             leaderId: l.id,
-            message: `Water quality medium at ${record.waterbodyName}`,
+            message: `⚠️ Medium Water Quality at ${record.waterbodyName}`,
             waterTestId: record.id,
           })),
         });
@@ -90,40 +94,18 @@ Date: ${formattedDate}`;
     } else if (normalizedQuality === "high") {
       await prisma.globalAlert.create({
         data: {
-          message: `High risk water quality at ${record.waterbodyName}`,
+          message: `🚨 High Risk Water Quality detected at ${record.waterbodyName}`,
           waterTestId: record.id,
         },
       });
-      const leaders = await prisma.user.findMany({
-        where: { role: "leader" },
+
+      const users = await prisma.user.findMany({
         select: { number: true },
       });
 
-      for (const leader of leaders) {
-        if (leader.number) {
-          const smsMessage = `🚨 High Risk Alert
-Waterbody: ${record.waterbodyName}
-Location: ${location}
-Date: ${formattedDate}`;
-          await sendSMSWrapper(leader.number, smsMessage);
-        }
-      }
-    } else if (normalizedQuality === "disease") {
-      // TODO: SMS broadcast to everyone (to be implemented)
-      await prisma.globalAlert.create({
-        data: {
-          message: `Disease detected in water at ${record.waterbodyName}`,
-          waterTestId: record.id,
-        },
-      });
-      // SMS sending will be implemented.
-
-      const users = await prisma.user.findMany({
-        select: { number: true, role: true },
-      });
       for (const user of users) {
         if (user.number) {
-          const smsMessage = `🚨 URGENT ALERT: Disease detected!
+          const smsMessage = `🚨 HIGH RISK ALERT
 Waterbody: ${record.waterbodyName}
 Location: ${location}
 Date: ${formattedDate}`;
@@ -172,7 +154,7 @@ const updateWaterTest = async (req, res) => {
     if (notes) data.notes = notes;
     if (quality) {
       const q = String(quality).toLowerCase();
-      if (!["good", "medium", "high", "disease"].includes(q))
+      if (!["good", "medium", "high"].includes(q))
         return res.status(400).json({ message: "invalid quality" });
       data.quality = q;
     }
