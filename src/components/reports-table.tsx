@@ -11,7 +11,6 @@ import {
   Search, 
   MapPin, 
   Calendar, 
-  Plus, 
   MoreHorizontal, 
   Edit, 
   Trash2, 
@@ -27,6 +26,7 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { ReportsService, type Report } from "@/lib/reports"
 import { useAuth } from "@/contexts/auth-context"
+import { CreateReportModal } from "@/components/create-report-modal"
 
 function getStatusColor(status: Report["status"]) {
   switch (status) {
@@ -261,10 +261,7 @@ export function ReportsTable() {
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <CardTitle className="text-lg font-semibold text-gray-900">Reports</CardTitle>
-          <Button className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
-            <Plus className="w-4 h-4 mr-2" />
-            New Report
-          </Button>
+          <CreateReportModal onReportCreated={fetchReports} />
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
