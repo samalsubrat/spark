@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Droplets, Shield, BarChart3, Users, Globe, Phone, GraduationCap, Newspaper } from "lucide-react"
+import ChatbotOverlay from "@/components/chatbot-overlay"
 
 export default function Home() {
   return (
@@ -277,6 +278,9 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Chatbot Overlay */}
+      <ChatbotOverlay />
     </div>
   )
 }
