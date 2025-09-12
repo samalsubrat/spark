@@ -24,7 +24,7 @@ Reports
 - Payload: none
 - Response: `{ "reports": [...] }`
 
-- Route: PATCH `/api/v1/reports/:id` (leader, Bearer token)
+- Route: PATCH `/api/v1/reports/:id` (admin or owning leader, Bearer token)
 - Payload: `{ "status?": "awaiting|in_progress|resolved", "progress?": 0-100 }`
 - Response: `{ "report": { "id", "status", "progress" } }`
 

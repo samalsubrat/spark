@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import prisma from "../lib/db.js";
 
 const ensureAdmin = (req, res) => {

@@ -1,4 +1,5 @@
 import prisma from "../lib/db.js";
+import { sendSMSWrapper } from "../lib/sms.js";
 
 const createReport = async (req, res) => {
   try {
@@ -41,6 +42,29 @@ const createReport = async (req, res) => {
 
     // SMS notification to the local leader about this report should be sent here (to be implemented).
 
+    if (leader.number) {
+      const formattedDate = new Date(date).toLocaleString("en-IN", {
+    weekday: "short",   // Thu
+    day: "2-digit",     // 11
+    month: "short",     // Sep
+    year: "numeric",    // 2025
+    hour: "2-digit",    // 03
+    minute: "2-digit",  // 30
+    hour12: true,       // AM/PM
+    timeZone: "Asia/Kolkata", // Indian time zone
+  });
+
+  const smsMessage = `🚨 New Report Created 🚨
+Name: ${name}
+Location: ${location}
+Date: ${formattedDate}
+Map Area: ${mapArea}`;
+
+      await sendSMSWrapper(leader.number, smsMessage);
+    } else {
+      console.warn(`⚠️ Leader ${leaderId} has no phone number saved.`);
+    }
+
     return res.status(201).json({ report });
   } catch (error) {
     console.error("createReport error", error);
@@ -50,7 +74,7 @@ const createReport = async (req, res) => {
 
 const listLeaderReports = async (req, res) => {
   try {
-    if (!req.user || req.user.role !== "leader") {
+    if (!req.user || !["leader", "admin"].includes(req.user.role)) {
       return res.status(403).json({ message: "forbidden" });
     }
 
