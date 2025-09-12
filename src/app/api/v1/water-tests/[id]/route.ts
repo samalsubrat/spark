@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const BACKEND_API_URL = 'http://13.235.31.25/api/v1'
+const BACKEND_API_URL = 'http://sparkbackend-vsjv.onrender.com/api/v1'
 
 // Helper function to forward auth headers
 function getAuthHeaders(request: NextRequest) {
