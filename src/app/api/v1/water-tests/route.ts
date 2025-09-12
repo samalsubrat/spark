@@ -125,21 +125,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Transform payload to match backend expectations
-    const quality = payload.waterQualityParams ? {
-      ph: payload.waterQualityParams.ph,
-      turbidity: payload.waterQualityParams.Turbidity,
-      conductivity: payload.waterQualityParams.Conductivity,
-      hardness: payload.waterQualityParams.Hardness,
-      chloramines: payload.waterQualityParams.Chloramines,
-      sulfate: payload.waterQualityParams.Sulfate,
-      solids: payload.waterQualityParams.Solids,
-      organic_carbon: payload.waterQualityParams.Organic_carbon,
-      trihalomethanes: payload.waterQualityParams.Trihalomethanes,
-      ...(payload.mlPrediction && {
-        predicted_class: payload.mlPrediction.predicted_class,
-        risk_probabilities: payload.mlPrediction.probabilities
-      })
-    } : {}
+    // Map priority to quality string expected by backend
+    const getQualityFromPriority = (priority?: string) => {
+      switch (priority) {
+        case 'Low': return 'good'
+        case 'Medium': return 'medium'  
+        case 'High': return 'high'
+        default: return 'medium'
+      }
+    }
 
     const backendPayload = {
       waterbodyName: payload.waterbodyName,
@@ -147,7 +141,7 @@ export async function POST(request: NextRequest) {
       location: payload.location || '',
       photoUrl: payload.photoUrl || '',
       notes: payload.notes || '',
-      quality: quality
+      quality: getQualityFromPriority(payload.priority)
     }
 
     console.log('Transformed backend payload:', JSON.stringify(backendPayload, null, 2))
