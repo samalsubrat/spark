@@ -74,14 +74,14 @@ export default function CreateWaterTestModal({ open, onOpenChange, onSuccess }: 
         }
     })
 
-    const handleInputChange = (field: string, value: any) => {
+    const handleInputChange = (field: string, value: string | number) => {
         if (field.startsWith('waterQualityParams.')) {
             const paramName = field.split('.')[1]
             setFormData(prev => ({
                 ...prev,
                 waterQualityParams: {
                     ...prev.waterQualityParams,
-                    [paramName]: parseFloat(value) || 0
+                    [paramName]: parseFloat(value.toString()) || 0
                 }
             }))
         } else {

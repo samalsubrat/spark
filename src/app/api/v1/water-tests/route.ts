@@ -51,7 +51,7 @@ interface WaterTestPayload {
   }
 }
 
-const BACKEND_API_URL = 'http://localhost:8080/api/v1'
+const BACKEND_API_URL = 'http://13.235.31.25/api/v1'
 
 // Helper function to forward auth headers
 function getAuthHeaders(request: NextRequest) {
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     console.log('Transformed backend payload:', JSON.stringify(backendPayload, null, 2))
 
     // If quality parameters are provided, analyze with ML model first
-    let enhancedPayload = { ...payload }
+    const enhancedPayload = { ...payload }
     
     if (payload.quality && hasCompleteQualityData(payload.quality)) {
       try {
@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Helper function to check if quality data is complete for ML analysis
-function hasCompleteQualityData(quality: any): boolean {
+function hasCompleteQualityData(quality: Record<string, unknown>): boolean {
   const requiredFields = ['ph', 'turbidity', 'conductivity', 'hardness', 'chloramines', 'sulfate', 'solids', 'organic_carbon', 'trihalomethanes']
   return requiredFields.every(field => 
     quality[field] !== undefined && 

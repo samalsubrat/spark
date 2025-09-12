@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const BACKEND_API_URL = 'http://localhost:8080/api/v1'
+const BACKEND_API_URL = 'http://13.235.31.25/api/v1'
 
 // Helper function to forward auth headers
 function getAuthHeaders(request: NextRequest) {
@@ -19,13 +19,14 @@ function getAuthHeaders(request: NextRequest) {
 // PATCH /api/v1/water-tests/:id (owner ASHA or admin)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const payload = await request.json()
     
     // Forward to backend API
-    const response = await fetch(`${BACKEND_API_URL}/water-tests/${params.id}`, {
+    const response = await fetch(`${BACKEND_API_URL}/water-tests/${id}`, {
       method: 'PATCH',
       headers: getAuthHeaders(request),
       body: JSON.stringify(payload),
@@ -49,11 +50,13 @@ export async function PATCH(
 // DELETE /api/v1/water-tests/:id (owner ASHA or admin)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    
     // Forward to backend API
-    const response = await fetch(`${BACKEND_API_URL}/water-tests/${params.id}`, {
+    const response = await fetch(`${BACKEND_API_URL}/water-tests/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(request),
     })
