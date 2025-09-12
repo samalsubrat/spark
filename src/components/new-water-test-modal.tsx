@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Droplets, AlertTriangle, CheckCircle, Activity } from "lucide-react"
+import { WaterTestsService } from "@/lib/water-tests"
 
 interface WaterQualityParams {
   Chloramines: number
@@ -91,17 +92,20 @@ export function NewWaterTestModal({ isOpen, onClose, onTestCreated }: NewWaterTe
     setError(null)
 
     try {
-      const response = await fetch("/api/water-quality", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(waterParams),
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      // Convert the capitalized field names to lowercase for the service
+      const params = {
+        ph: waterParams.ph,
+        turbidity: waterParams.Turbidity,
+        conductivity: waterParams.Conductivity,
+        hardness: waterParams.Hardness,
+        chloramines: waterParams.Chloramines,
+        sulfate: waterParams.Sulfate,
+        solids: waterParams.Solids,
+        organic_carbon: waterParams.Organic_carbon,
+        trihalomethanes: waterParams.Trihalomethanes
       }
-
-      const result = await response.json()
+      
+      const result = await WaterTestsService.analyzeWaterQuality(params)
       
       if (result.error) {
         throw new Error(result.error)
@@ -123,19 +127,16 @@ export function NewWaterTestModal({ isOpen, onClose, onTestCreated }: NewWaterTe
     setError(null)
 
     try {
-      const response = await fetch("/api/water-tests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...basicInfo,
-          waterQualityParams: waterParams,
-          mlPrediction: analysisResult
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      const payload = {
+        waterbodyName: basicInfo.waterbodyName,
+        testType: basicInfo.testType as "Surveillance" | "Routine" | "Emergency",
+        priority: basicInfo.priority as "Low" | "Medium" | "High",
+        conductedBy: basicInfo.conductedBy,
+        waterQualityParams: waterParams,
+        mlPrediction: analysisResult
       }
+      
+      await WaterTestsService.createWaterTest(payload)
 
       // Reset form and close modal
       handleReset()

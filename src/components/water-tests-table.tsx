@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search, Calendar, Droplets, Plus, ChevronDown, ChevronRight, Loader2 } from "lucide-react"
-import { NewWaterTestModal } from "./new-water-test-modal"
+import CreateWaterTestModal from "./create-water-test-modal"
+import { WaterTestsService } from "@/lib/water-tests"
 
 // Simple date formatter to avoid hydration issues
 const formatDate = (dateString: string): string => {
@@ -109,15 +110,9 @@ export function WaterTestsTable() {
   const fetchWaterTests = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/water-tests')
-      if (response.ok) {
-        const data = await response.json()
-        // Ensure data is always an array
-        setWaterTests(Array.isArray(data) ? data : [])
-      } else {
-        console.error('Failed to fetch water tests')
-        setWaterTests([]) // Set empty array on error
-      }
+      const data = await WaterTestsService.getWaterTests()
+      // Ensure data is always an array
+      setWaterTests(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Error fetching water tests:', error)
       setWaterTests([]) // Set empty array on error
@@ -390,10 +385,10 @@ export function WaterTestsTable() {
         </CardContent>
       </Card>
 
-      <NewWaterTestModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
-        onTestCreated={handleNewTestCreated}
+      <CreateWaterTestModal 
+        open={isModalOpen} 
+        onOpenChange={setIsModalOpen}
+        onSuccess={handleNewTestCreated}
       />
     </>
   )
