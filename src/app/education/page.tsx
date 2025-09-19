@@ -20,7 +20,10 @@ import {
   Volume2,
   Users,
   Quote,
-  Heart
+  Heart,
+  Menu,
+  X,
+  Newspaper
 } from "lucide-react"
 import Link from "next/link"
 
@@ -112,6 +115,7 @@ const featuredStories = [
 
 export default function EducationHomePage() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const filteredCategories = educationCategories.filter(category => 
     category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -127,15 +131,17 @@ export default function EducationHomePage() {
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors">
                 <Home className="w-5 h-5" />
-                <span className="font-medium">Home</span>
+                <span className="font-medium hidden sm:inline">Home</span>
               </Link>
               <div className="flex items-center gap-2">
                 <GraduationCap className="w-6 h-6 text-blue-600" />
-                <span className="text-xl font-bold text-gray-900">Education Hub</span>
+                <span className="text-xl font-bold text-gray-900 hidden sm:inline">Education Hub</span>
+                <span className="text-lg font-bold text-gray-900 sm:hidden">Education</span>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-4">
               <Link href="/news">
                 <Button variant="outline" size="sm">
                   News
@@ -148,7 +154,43 @@ export default function EducationHomePage() {
                 </Button>
               </Link>
             </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
           </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <div className="md:hidden mt-3 pt-3 border-t">
+              <div className="space-y-2">
+                <Link href="/news" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <Newspaper className="h-4 w-4 mr-2" />
+                    News
+                  </Button>
+                </Link>
+                <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
