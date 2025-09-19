@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search, Droplets, Plus, ChevronDown, ChevronRight, Loader2 } from "lucide-react"
 import CreateWaterTestModal from "./create-water-test-modal"
-import { WaterTestsService, WaterTest } from "@/lib/water-tests"
+import { WaterTestsService } from "@/lib/water-tests"
 
 // Simple date formatter to avoid hydration issues
 const formatDate = (dateString: string): string => {
@@ -19,6 +19,21 @@ const formatDate = (dateString: string): string => {
     month: '2-digit',
     year: 'numeric'
   })
+}
+
+interface WaterTest {
+  id: string
+  waterbodyName: string
+  waterbodyId?: string
+  dateTime: string
+  location: string
+  latitude?: number
+  longitude?: number
+  photoUrl: string
+  notes: string
+  quality: "good" | "medium" | "high" | "disease"
+  ashaId: string
+  createdAt: string
 }
 
 function getQualityColor(quality: WaterTest["quality"]) {
